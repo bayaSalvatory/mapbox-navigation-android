@@ -5,7 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import com.mapbox.navigation.core.test.R
-import com.mapbox.navigation.testing.ui.NotificationTestRule
+import com.mapbox.navigation.testing.ui.NotificationTest
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 internal class TripServiceActivityTest :
-    NotificationTestRule<TripServiceActivity>(TripServiceActivity::class.java) {
+    NotificationTest<TripServiceActivity>(TripServiceActivity::class.java) {
 
     @Before
     fun setup() {
@@ -29,6 +29,7 @@ internal class TripServiceActivityTest :
         }
 
         uiDevice.run {
+            mockLocationUpdatesRule.pushLocationUpdate(mockLocationUpdatesRule.generateLocationUpdate())
             openNotification()
             val etaContent = By.res("com.mapbox.navigation.core.test:id/etaContent")
             val freeDriveText = By.res("com.mapbox.navigation.core.test:id/freeDriveText")

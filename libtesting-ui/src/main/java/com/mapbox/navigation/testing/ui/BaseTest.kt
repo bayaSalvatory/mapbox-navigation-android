@@ -7,16 +7,18 @@ import com.schibsted.spain.barista.rule.BaristaRule
 import org.junit.Before
 import org.junit.Rule
 
-open class BaseTestRule<A : AppCompatActivity>(activityClass: Class<A>) {
+open class BaseTest<A : AppCompatActivity>(activityClass: Class<A>) {
 
     @get:Rule
     val activityRule = BaristaRule.create(activityClass)
+
+    @get:Rule
+    val mockLocationUpdatesRule = MockLocationUpdatesRule()
 
     protected val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @Before
     fun setUp() {
-        uiDevice.pressHome()
         activityRule.launchActivity()
     }
 

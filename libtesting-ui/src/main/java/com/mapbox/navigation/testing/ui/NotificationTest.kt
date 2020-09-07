@@ -5,8 +5,8 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 
-open class NotificationTestRule<A : AppCompatActivity>(activityClass: Class<A>) :
-    BaseTestRule<A>(activityClass) {
+open class NotificationTest<A : AppCompatActivity>(activityClass: Class<A>) :
+    BaseTest<A>(activityClass) {
 
     companion object {
         private const val TIMEOUT = 3_000L
