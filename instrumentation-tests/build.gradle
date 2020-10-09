@@ -23,10 +23,6 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    testOptions {
-        execution 'ANDROIDX_TEST_ORCHESTRATOR'
-    }
-
     dexOptions {
         maxProcessCount 8
         javaMaxHeapSize "2g"
