@@ -3,7 +3,7 @@
 
     <application>
         <activity
-            android:name=".TripServiceActivity"
+            android:name=".tests.activity.TripServiceActivity"
             android:theme="@style/AppTheme" />
     </application>
 </manifest>

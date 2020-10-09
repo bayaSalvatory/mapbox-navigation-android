@@ -4,23 +4,25 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
+import java.util.Date
 
-class MockLocationUpdatesRule : TestWatcher() {
+class MockLocationUpdatesRule(private val mockProviderName: String) : TestWatcher() {
 
     private val instrumentation = getInstrumentation()
     private val appContext = (ApplicationProvider.getApplicationContext() as Context)
-    private val mockProvider = LocationManager.GPS_PROVIDER // lm.getBestProvider(Criteria().also { it.accuracy = Criteria.ACCURACY_FINE }, true)
+    // lm.getBestProvider(Criteria().also { it.accuracy = Criteria.ACCURACY_FINE }, true)
     private val locationManager: LocationManager by lazy {
         (appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager).also {
             try {
-                it.removeTestProvider(mockProvider)
+                it.removeTestProvider(mockProviderName)
             } finally {
-                it.addTestProvider(mockProvider, false, false, false, false, true, true, true, 3, 2)
-                it.setTestProviderEnabled(mockProvider, true)
+                it.addTestProvider(mockProviderName, false, false, false, false, true, true, true, 3, 2)
+                it.setTestProviderEnabled(mockProviderName, true)
             }
         }
     }
@@ -43,9 +45,9 @@ class MockLocationUpdatesRule : TestWatcher() {
      * @param modifyFn allows to modify the base location
      */
     fun generateLocationUpdate(modifyFn: (Location.() -> Unit)? = null): Location {
-        val location = Location(LocationManager.GPS_PROVIDER)
-        location.time = 123456
-        location.elapsedRealtimeNanos = 123456789
+        val location = Location(mockProviderName)
+        location.time = Date().time
+        location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
         location.accuracy = 5f
         location.altitude = 0.0
         location.bearing = 0f
@@ -67,6 +69,6 @@ class MockLocationUpdatesRule : TestWatcher() {
     }
 
     fun pushLocationUpdate(location: Location) {
-        locationManager.setTestProviderLocation(mockProvider, location)
+        locationManager.setTestProviderLocation(mockProviderName, location)
     }
 }
