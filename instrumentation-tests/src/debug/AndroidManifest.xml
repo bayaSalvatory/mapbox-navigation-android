@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+
+    <!--workaround for Android security requirement when using mocked web server and local host
+    possible to resolve with and additional keystore and key generator or by upgrading OkHttp-->
+    <application android:usesCleartextTraffic="true" />
 </manifest>

@@ -82,6 +82,10 @@ class MockLocationUpdatesRule : TestWatcher() {
         return location
     }
 
+    fun pushLocationUpdate(modifyFn: (Location.() -> Unit)? = null) {
+        pushLocationUpdate(generateLocationUpdate(modifyFn))
+    }
+
     fun pushLocationUpdate(location: Location) {
         check(location.provider == mockProviderName) {
             """

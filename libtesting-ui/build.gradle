@@ -27,4 +27,5 @@ dependencies {
     }
     api dependenciesList.mapboxMapSdk
     api dependenciesList.androidXConstraintLayout
+    api dependenciesList.mockwebserver
 }
