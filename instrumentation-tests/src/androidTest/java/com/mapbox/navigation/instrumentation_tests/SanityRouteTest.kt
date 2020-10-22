@@ -2,29 +2,30 @@ package com.mapbox.navigation.instrumentation_tests
 
 import android.util.Log
 import androidx.test.espresso.Espresso
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.navigation.base.internal.extensions.applyDefaultParams
 import com.mapbox.navigation.base.internal.extensions.coordinates
 import com.mapbox.navigation.base.trip.model.RouteProgress
+import com.mapbox.navigation.base.trip.model.RouteProgressState
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.instrumentation_tests.activity.EmptyTestActivity
 import com.mapbox.navigation.instrumentation_tests.utils.MapboxNavigationRule
 import com.mapbox.navigation.instrumentation_tests.utils.Utils
+import com.mapbox.navigation.instrumentation_tests.utils.assertions.RouteProgressStateAssertion
+import com.mapbox.navigation.instrumentation_tests.utils.assertions.navAssert
+import com.mapbox.navigation.instrumentation_tests.utils.assertions.optionalState
+import com.mapbox.navigation.instrumentation_tests.utils.assertions.requiredState
 import com.mapbox.navigation.instrumentation_tests.utils.http.MockDirectionsRequestHandler
 import com.mapbox.navigation.instrumentation_tests.utils.location.MockLocationReplayerRule
 import com.mapbox.navigation.instrumentation_tests.utils.route.routesRequestCallback
 import com.mapbox.navigation.testing.ui.BaseTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class SanityRouteTest : BaseTest<EmptyTestActivity>(EmptyTestActivity::class.java) {
 
     @get:Rule
@@ -58,6 +59,14 @@ class SanityRouteTest : BaseTest<EmptyTestActivity>(EmptyTestActivity::class.jav
                 )
             )
         )
+
+        val statesVerification = RouteProgressStateAssertion(mapboxNavigation) {
+            listOf(
+                optionalState(RouteProgressState.ROUTE_INVALID),
+                requiredState(RouteProgressState.LOCATION_TRACKING),
+                requiredState(RouteProgressState.ROUTE_COMPLETE)
+            )
+        }
         uiDevice.run {
             mockLocationUpdatesRule.pushLocationUpdate {
                 latitude = 38.894721
@@ -84,5 +93,6 @@ class SanityRouteTest : BaseTest<EmptyTestActivity>(EmptyTestActivity::class.jav
         }
 
         Thread.sleep(20000)
+        navAssert(statesVerification)
     }
 }
