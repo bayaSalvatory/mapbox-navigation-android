@@ -1,5 +1,6 @@
 package com.mapbox.navigation.instrumentation_tests
 
+import android.location.LocationManager
 import android.util.Log
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,7 +14,11 @@ import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
 import com.mapbox.navigation.core.directions.session.RoutesRequestCallback
 import com.mapbox.navigation.core.replay.MapboxReplayer
+import com.mapbox.navigation.core.replay.history.ReplayEventBase
+import com.mapbox.navigation.core.replay.history.ReplayEventUpdateLocation
+import com.mapbox.navigation.core.replay.history.ReplayEventsObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
+import com.mapbox.navigation.core.replay.utils.toLocation
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.instrumentation_tests.activity.EmptyTestActivity
 import com.mapbox.navigation.instrumentation_tests.utils.Utils
@@ -26,9 +31,20 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SanityRouteTest : BaseTest<EmptyTestActivity>(EmptyTestActivity::class.java) {
 
-    private lateinit var mapboxNavigation: MapboxNavigation
+    private val replayEventsObserver = object : ReplayEventsObserver {
+        override fun replayEvents(events: List<ReplayEventBase>) {
+            events.forEach {
+                if (it is ReplayEventUpdateLocation) {
+                    mockLocationUpdatesRule.pushLocationUpdate(it.toLocation(LocationManager.GPS_PROVIDER))
+                }
+            }
+        }
+    }
     private val mapper = ReplayRouteMapper()
-    private val mapboxReplayer = MapboxReplayer()
+    private val mapboxReplayer = MapboxReplayer().also {
+        it.registerObserver(replayEventsObserver)
+    }
+    private lateinit var mapboxNavigation: MapboxNavigation
 
     @Before
     fun setup() {

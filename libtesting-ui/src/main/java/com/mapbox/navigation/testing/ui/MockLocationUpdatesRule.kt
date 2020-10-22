@@ -11,17 +11,31 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import java.util.Date
 
-class MockLocationUpdatesRule(private val mockProviderName: String) : TestWatcher() {
+private const val mockProviderName = LocationManager.GPS_PROVIDER
+
+class MockLocationUpdatesRule : TestWatcher() {
 
     private val instrumentation = getInstrumentation()
     private val appContext = (ApplicationProvider.getApplicationContext() as Context)
+
     // lm.getBestProvider(Criteria().also { it.accuracy = Criteria.ACCURACY_FINE }, true)
     private val locationManager: LocationManager by lazy {
         (appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager).also {
             try {
                 it.removeTestProvider(mockProviderName)
             } finally {
-                it.addTestProvider(mockProviderName, false, false, false, false, true, true, true, 3, 2)
+                it.addTestProvider(
+                    mockProviderName,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    true,
+                    true,
+                    3,
+                    2
+                )
                 it.setTestProviderEnabled(mockProviderName, true)
             }
         }
@@ -30,7 +44,7 @@ class MockLocationUpdatesRule(private val mockProviderName: String) : TestWatche
     override fun starting(description: Description?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             with(instrumentation.uiAutomation) {
-                executeShellCommand(
+                val result = executeShellCommand(
                     "appops set " +
                         appContext.packageName +
                         " android:mock_location allow"
@@ -69,6 +83,11 @@ class MockLocationUpdatesRule(private val mockProviderName: String) : TestWatche
     }
 
     fun pushLocationUpdate(location: Location) {
+        check(location.provider == mockProviderName) {
+            """
+              location provider "${location.provider}" is not equal to required "$mockProviderName"
+            """.trimIndent()
+        }
         locationManager.setTestProviderLocation(mockProviderName, location)
     }
 }

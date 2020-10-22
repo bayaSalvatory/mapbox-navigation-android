@@ -13,7 +13,7 @@ open class BaseTest<A : AppCompatActivity>(activityClass: Class<A>) {
     val activityRule = BaristaRule.create(activityClass)
 
     @get:Rule
-    val mockLocationUpdatesRule = MockLocationUpdatesRule("ReplayRoute" /*this matches the route replayer name*/)
+    val mockLocationUpdatesRule = MockLocationUpdatesRule()
 
     protected val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
